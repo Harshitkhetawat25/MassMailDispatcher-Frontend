@@ -13,11 +13,13 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { useNavigate } from "react-router-dom";
+import HeaderHomePage from "../components/HeaderHomePage";
+import FooterHomePage from "../components/FooterHomePage";
+import useGetCurrentUser from "../hooks/useGetCurrentUser";
 
 const MassMailDispatcher = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const navigate = useNavigate();
+  const { user, loading } = useGetCurrentUser();
+  console.log(user);
 
   const benefits = [
     {
@@ -49,77 +51,9 @@ const MassMailDispatcher = () => {
     { number: "99.9%", label: "Uptime" },
   ];
 
-  const NavLink = ({ children, href = "#" }) => (
-    <a
-      href={href}
-      className="text-gray-700 hover:text-blue-600 font-medium transition-colors px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-    >
-      {children}
-    </a>
-  );
-
   return (
     <div className="min-h-screen bg-white">
-      {/* Navigation */}
-      <nav className="bg-white border-b sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gray-900 rounded-lg flex items-center justify-center">
-                <Mail className="w-5 h-5 text-white" />
-              </div>
-              <span className="text-xl font-bold text-gray-900">
-                Mass Mail Dispatcher
-              </span>
-            </div>
-
-            {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-2">
-              <NavLink href="#features">Features</NavLink>
-              <NavLink href="#about">About</NavLink>
-              <NavLink href="#pricing">Pricing</NavLink>
-               <Button onClick={() => navigate("/login")} className="bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow px-6 py-2 rounded-md">
-                  Login
-                </Button>
-                <Button onClick={() => navigate("/signup")} className="bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow px-6 py-2 rounded-md">
-                  Signup
-                </Button>
-            </div>
-
-            {/* Mobile menu button */}
-            <div className="md:hidden">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
-              >
-                {isMenuOpen ? (
-                  <X className="w-5 h-5" />
-                ) : (
-                  <Menu className="w-5 h-5" />
-                )}
-              </Button>
-            </div>
-          </div>
-
-          {/* Mobile Navigation */}
-          {isMenuOpen && (
-            <div className="md:hidden border-t py-4 space-y-3 bg-white shadow-lg rounded-b-xl">
-              <div className="flex flex-col space-y-3">
-                <NavLink href="#features">Features</NavLink>
-                <NavLink href="#about">About</NavLink>
-                <NavLink href="#pricing">Pricing</NavLink>
-                <Button className="bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow px-6 py-2 rounded-md">
-                  Login
-                </Button>
-                <Button className="bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow px-6 py-2 rounded-md">
-                  Signup
-                </Button>
-              </div>
-            </div>
-          )}
-        </div>
-      </nav>
+      <HeaderHomePage />
 
       {/* Hero Section */}
       <section
@@ -209,7 +143,10 @@ const MassMailDispatcher = () => {
       </section>
 
       {/* How It Works */}
-      <section className="py-20 bg-gradient-to-br from-blue-50 to-indigo-100" id="about">
+      <section
+        className="py-20 bg-gradient-to-br from-blue-50 to-indigo-100"
+        id="about"
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-gray-900 mb-4">
@@ -278,7 +215,7 @@ const MassMailDispatcher = () => {
               "Increased our response rate by 300% and saved 15 hours per week
               on email outreach. Game-changer for our sales team."
             </blockquote>
-            <div >
+            <div>
               <div className="font-semibold ">Aman Godara</div>
               <div className="text-sm">Growth Lead, TechStartup Inc.</div>
             </div>
@@ -295,7 +232,7 @@ const MassMailDispatcher = () => {
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white py-16">
+      {/* <footer className="bg-gray-900 text-white py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="grid md:grid-cols-4 gap-8">
             <div className="md:col-span-2">
@@ -390,7 +327,8 @@ const MassMailDispatcher = () => {
             </div>
           </div>
         </div>
-      </footer>
+      </footer> */}
+      <FooterHomePage />
     </div>
   );
 };

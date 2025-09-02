@@ -1,7 +1,32 @@
 body {
   background-color: #fbfbfd;
   font-family: "Poppins", sans-serif;
+  /* Prevent horizontal scroll on mobile */
+  overflow-x: hidden;
 }
+
+/* Improved mobile scrolling */
+* {
+  scroll-behavior: smooth;
+}
+
+/* Better touch targets for mobile */
+@media (max-width: 768px) {
+  button,
+  [role="button"],
+  input,
+  select,
+  textarea {
+    min-height: 44px;
+  }
+
+  /* Improve text readability on mobile */
+  body {
+    font-size: 16px;
+    line-height: 1.5;
+  }
+}
+
 @import "tailwindcss";
 @import "tw-animate-css";
 

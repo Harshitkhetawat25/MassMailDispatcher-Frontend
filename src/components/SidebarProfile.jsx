@@ -1,8 +1,15 @@
-"use client"
+"use client";
 
-import { BadgeCheck, Bell, ChevronsUpDown, CreditCard, LogOut, Sparkles } from "lucide-react"
+import {
+  BadgeCheck,
+  Bell,
+  ChevronsUpDown,
+  CreditCard,
+  LogOut,
+  Sparkles,
+} from "lucide-react";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,16 +18,50 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Button } from "@/components/ui/button"
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+import { API_URL } from "../../constants/config";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { useSelector } from "react-redux";
 
-export function SidebarProfile({ user }) {
+export function SidebarProfile() {
+  const user = useSelector((state) => state.user.userData);
+  const navigate = useNavigate();
+  const handleLogout = async () => {
+    await axios.post(
+      API_URL + "/api/auth/logout",
+      {},
+      { withCredentials: true }
+    );
+    toast.success("Logout successful");
+    navigate("/login");
+  };
+  if (!user) {
+    // Loading skeleton/fallback
+    return (
+      <div className="flex items-center gap-3 animate-pulse">
+        <div className="h-8 w-8 bg-muted rounded-lg" />
+        <div className="flex-1">
+          <div className="h-3 w-24 bg-muted rounded mb-1" />
+          <div className="h-2 w-16 bg-muted rounded" />
+        </div>
+      </div>
+    );
+  }
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="w-full justify-start h-auto p-2 data-[state=open]:bg-accent">
+        <Button
+          variant="ghost"
+          className="w-full justify-start h-auto p-2 data-[state=open]:bg-accent"
+        >
           <Avatar className="h-8 w-8 rounded-lg">
-            <AvatarImage src={user.avatar || "/placeholder.svg"} alt={user.name} />
+            <AvatarImage
+              src={user.avatar || "/placeholder.svg"}
+              alt={user.name}
+            />
             <AvatarFallback className="rounded-lg">
               {user.name
                 .split(" ")
@@ -30,16 +71,26 @@ export function SidebarProfile({ user }) {
           </Avatar>
           <div className="grid flex-1 text-left text-sm leading-tight ml-2">
             <span className="truncate font-medium">{user.name}</span>
-            <span className="truncate text-xs text-muted-foreground">{user.email}</span>
+            <span className="truncate text-xs text-muted-foreground">
+              {user.email}
+            </span>
           </div>
           <ChevronsUpDown className="ml-auto size-4" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56 rounded-lg" side="right" align="end" sideOffset={4}>
+      <DropdownMenuContent
+        className="w-56 rounded-lg"
+        side="right"
+        align="end"
+        sideOffset={4}
+      >
         <DropdownMenuLabel className="p-0 font-normal">
           <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
             <Avatar className="h-8 w-8 rounded-lg">
-              <AvatarImage src={user.avatar || "/placeholder.svg"} alt={user.name} />
+              <AvatarImage
+                src={user.avatar || "/placeholder.svg"}
+                alt={user.name}
+              />
               <AvatarFallback className="rounded-lg">
                 {user.name
                   .split(" ")
@@ -49,7 +100,9 @@ export function SidebarProfile({ user }) {
             </Avatar>
             <div className="grid flex-1 text-left text-sm leading-tight">
               <span className="truncate font-medium">{user.name}</span>
-              <span className="truncate text-xs text-muted-foreground">{user.email}</span>
+              <span className="truncate text-xs text-muted-foreground">
+                {user.email}
+              </span>
             </div>
           </div>
         </DropdownMenuLabel>
@@ -76,11 +129,11 @@ export function SidebarProfile({ user }) {
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
+        <DropdownMenuItem onClick={handleLogout}>
           <LogOut className="mr-2 h-4 w-4" />
           Log out
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
-  )
+  );
 }
