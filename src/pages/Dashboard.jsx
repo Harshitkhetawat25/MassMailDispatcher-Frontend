@@ -1,11 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import Header from "@/components/header";
-import Sidebar from "@/components/sidebar";
-import Footer from "@/components/footer";
+import Header from "@/components/Header";
+import Sidebar from "@/components/Sidebar";
+import Footer from "@/components/Footer";
 import { useNavigate, Outlet, useLocation } from "react-router-dom";
-import { useSelector } from "react-redux";
 import { useEffect } from "react";
 import useGetCurrentUser from "../hooks/useGetCurrentUser";
 import Loader from "@/components/ui/loader";
