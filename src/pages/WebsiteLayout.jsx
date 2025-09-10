@@ -1,6 +1,6 @@
 import HeaderHomePage from "../components/HeaderHomePage";
 import { Outlet } from "react-router-dom";
-import FooterHomePage from "../components/FooterHomePage";
+import FooterHomePage from "../components/FooterHomePage"
 
 function WebsiteLayout() {
   return (
