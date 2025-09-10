@@ -107,7 +107,7 @@ export default function Sidebar({ isMobile, sidebarOpen, setSidebarOpen }) {
             <Activity className="mr-2 h-4 w-4" />
             View Logs
           </Button>
-          <Button
+          {/* <Button
             variant={getActive("drafts") ? "default" : "ghost"}
             className="w-full justify-start"
             size="sm"
@@ -115,7 +115,7 @@ export default function Sidebar({ isMobile, sidebarOpen, setSidebarOpen }) {
           >
             <Clock className="mr-2 h-4 w-4" />
             Drafts
-          </Button>
+          </Button> */}
         </nav>
       </aside>
     </>

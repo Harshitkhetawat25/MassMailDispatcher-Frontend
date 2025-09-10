@@ -3,9 +3,6 @@ import { Mail, Menu, X } from "lucide-react";
 import { useIsMobile } from "../hooks/use-mobile";
 import { useNavigate } from "react-router-dom";
 
-
-
-
 export default function Header({ sidebarOpen, setSidebarOpen }) {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
@@ -28,11 +25,24 @@ export default function Header({ sidebarOpen, setSidebarOpen }) {
             )}
           </Button>
         )}
-        <div className="flex items-center space-x-2">
-          <Mail className="h-6 w-6 text-primary" onClick={() => navigate("/")} />
-          <h1 className="text-lg md:text-xl font-semibold">
-            {isMobile ? "MassMailer" : "Mass Mail Dispatcher"}
-          </h1>
+        <div className="flex items-center justify-between w-full">
+          <div className="flex items-center space-x-2">
+            <Mail
+              className="h-6 w-6 text-primary cursor-pointer"
+              onClick={() => navigate("/")}
+            />
+            <h1 className="text-lg md:text-xl font-semibold">
+              {isMobile ? "MassMailer" : "Mass Mail Dispatcher"}
+            </h1>
+          </div>
+          <div>
+            <h3
+              className="text-gray-700 hover:text-blue-600 font-medium transition-colors px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+              onClick={() => navigate("/")}
+            >
+              Home
+            </h3>
+          </div>
         </div>
       </div>
     </header>

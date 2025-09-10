@@ -13,7 +13,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "react-toastify";
-import axios from "axios";
+import api from "../lib/axios";
 import { API_URL } from "../../constants/config";
 import { setUserData } from "../redux/userSlice";
 import { User, Lock, Mail, Shield, Save, Eye, EyeOff } from "lucide-react";
@@ -39,11 +39,7 @@ const Settings = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await axios.put(
-        `${API_URL}/api/user/update-name`,
-        { name },
-        { withCredentials: true }
-      );
+      const res = await api.put("/api/user/update-name", { name });
       dispatch(setUserData({ ...user, name }));
       toast.success("Name updated successfully");
     } catch (err) {
@@ -65,11 +61,7 @@ const Settings = () => {
     }
     setPasswordLoading(true);
     try {
-      await axios.put(
-        `${API_URL}/api/user/change-password`,
-        { oldPassword, newPassword },
-        { withCredentials: true }
-      );
+      await api.put("/api/user/change-password", { oldPassword, newPassword });
       toast.success("Password changed successfully");
       setOldPassword("");
       setNewPassword("");

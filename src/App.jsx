@@ -6,7 +6,6 @@ import WebsiteLayout from "./pages/WebsiteLayout";
 import CheckEmail from "./pages/CheckEmail";
 
 // Lazy load components for better performance
-const Signup = lazy(() => import("./pages/Signup"));
 const Login = lazy(() => import("./pages/Login"));
 const MassMailDispatcher = lazy(() => import("./pages/MassMailDispatcher"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
@@ -69,11 +68,10 @@ function App() {
             <Route path="upload-csv" element={<UploadCsv />} />
             <Route path="manage-templates" element={<ManageTemplates />} />
             <Route path="view-logs" element={<ViewLogs />} />
-            <Route path="drafts" element={<Drafts />} />
+            {/* <Route path="drafts" element={<Drafts />} /> */}
           </Route>
           {/* Wrap login and signup in WebsiteLayout */}
           <Route element={<WebsiteLayout />}>
-            <Route path="signup" element={<Signup />} />
             <Route path="login" element={<Login />} />
             <Route
             path="settings"

@@ -17,19 +17,12 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  Send,
-  Eye,
-  Calendar,
-  TestTube,
-  FileText,
-  Database,
-} from "lucide-react";
+import { Send, Eye, FileText, Database, Sparkles } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import Papa from "papaparse";
-import axios from "axios";
+import api from "../lib/axios";
 import { API_URL } from "../../constants/config";
 import { useIsMobile } from "../hooks/use-mobile";
 
@@ -40,14 +33,13 @@ export default function SendMail() {
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
   const [testEmail, setTestEmail] = useState("");
-  const [scheduleDate, setScheduleDate] = useState("");
-  const [scheduleTime, setScheduleTime] = useState("");
   const [csvPreview, setCsvPreview] = useState({ rows: [], fields: [] });
   const [templatePreview, setTemplatePreview] = useState(null);
   const [showCsvPreview, setShowCsvPreview] = useState(false);
   const [showTemplatePreview, setShowTemplatePreview] = useState(false);
-  const [showTestDialog, setShowTestDialog] = useState(false);
-  const [showScheduleDialog, setShowScheduleDialog] = useState(false);
+  const [showAiDialog, setShowAiDialog] = useState(false);
+  const [aiPrompt, setAiPrompt] = useState("");
+  const [isGeneratingAi, setIsGeneratingAi] = useState(false);
 
   const userData = useSelector((state) => state.user.userData);
   const files = useSelector((state) => state.user.userData?.files || []);
@@ -164,20 +156,11 @@ export default function SendMail() {
       // Use axios for the request
       let result;
       try {
-        const response = await axios.post(
-          API_URL + "/api/email/send-mass",
-          {
-            csvFileId: selectedCsv,
-            subject,
-            body,
-          },
-          {
-            withCredentials: true,
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
+        const response = await api.post("/api/email/send-mass", {
+          csvFileId: selectedCsv,
+          subject,
+          body,
+        });
         result = response.data;
       } catch (err) {
         if (err.response && err.response.data) {
@@ -202,6 +185,38 @@ export default function SendMail() {
     }
   };
 
+  // Use the new full email generation endpoint to set both subject and body
+  const handleGenerateAiContent = async () => {
+    if (!aiPrompt.trim()) {
+      toast.error("Please enter a prompt for AI generation");
+      return;
+    }
+
+    setIsGeneratingAi(true);
+    try {
+      const response = await api.post("/api/ai/generate-full-email", {
+        prompt: aiPrompt,
+      });
+
+      if (response.data && response.data.subject && response.data.body) {
+        setSubject(response.data.subject);
+        setBody(response.data.body);
+        toast.success("AI subject and body generated successfully!");
+        setShowAiDialog(false);
+        setAiPrompt("");
+      } else {
+        toast.error("Failed to generate AI subject and body");
+      }
+    } catch (error) {
+      console.error("AI generation error:", error);
+      toast.error(
+        error.response?.data?.error || "Failed to generate AI subject and body"
+      );
+    } finally {
+      setIsGeneratingAi(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <Card>
@@ -216,7 +231,7 @@ export default function SendMail() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div className="space-y-2">
               <Label htmlFor="csv-select">Select CSV File</Label>
-             
+
               <div className="flex gap-2">
                 <Select
                   key={`csv-select-${files.length}`}
@@ -384,7 +399,69 @@ export default function SendMail() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="body">Body</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="body">Body</Label>
+                <Dialog open={showAiDialog} onOpenChange={setShowAiDialog}>
+                  <DialogTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex items-center gap-2"
+                    >
+                      <Sparkles className="h-4 w-4" />
+                      Generate with AI
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-md">
+                    <DialogHeader>
+                      <DialogTitle>Generate Email Body with AI</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                      <div>
+                        <Label htmlFor="ai-prompt">
+                          Describe what you want in the email:
+                        </Label>
+                        <Textarea
+                          id="ai-prompt"
+                          value={aiPrompt}
+                          onChange={(e) => setAiPrompt(e.target.value)}
+                          placeholder="e.g., A professional welcome email for new customers with a warm tone..."
+                          className="min-h-[100px] mt-2"
+                        />
+                      </div>
+                      <div className="flex gap-2 justify-end">
+                        <Button
+                          variant="outline"
+                          onClick={() => {
+                            setShowAiDialog(false);
+                            setAiPrompt("");
+                          }}
+                          disabled={isGeneratingAi}
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          onClick={handleGenerateAiContent}
+                          disabled={isGeneratingAi || !aiPrompt.trim()}
+                          className="flex items-center gap-2"
+                        >
+                          {isGeneratingAi ? (
+                            <>
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                              Generating...
+                            </>
+                          ) : (
+                            <>
+                              <Sparkles className="h-4 w-4" />
+                              Generate
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+              </div>
               <Textarea
                 id="body"
                 value={body}

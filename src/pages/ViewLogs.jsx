@@ -1,26 +1,58 @@
-import { useEffect, useState } from "react";
-import { API_URL } from "../../constants/config";
-import axios from "axios";
+import React, { useEffect, useState } from "react";
+import api from "../lib/axios";
 import Loader from "../components/ui/loader";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
 import { useIsMobile } from "../hooks/use-mobile";
+import { DatePicker } from "@/components/ui/date-picker";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationPrevious,
+  PaginationNext,
+} from "@/components/ui/pagination";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export default function ViewLogs({ stats, recentActivity }) {
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalLogs, setTotalLogs] = useState(0);
+  const [statusFilter, setStatusFilter] = useState("all"); // all | success | failed
+  const [dateFrom, setDateFrom] = useState(null);
+  const [dateTo, setDateTo] = useState(null);
   const isMobile = useIsMobile();
 
   useEffect(() => {
     const fetchLogs = async () => {
+      setLoading(true);
       try {
-        setLoading(true);
-        const response = await axios.get(API_URL + "/api/mail/logs", {
-          withCredentials: true,
-        });
-        setLogs(response.data.logs || []);
-      } catch (error) {
-        console.error("Error fetching logs:", error);
+        const params = new URLSearchParams();
+        params.append("page", page);
+        params.append("limit", limit);
+        if (statusFilter && statusFilter !== "all")
+          params.append("status", statusFilter);
+        if (dateFrom)
+          params.append("from", dateFrom.toISOString().split("T")[0]); // Convert to YYYY-MM-DD
+        if (dateTo) params.append("to", dateTo.toISOString().split("T")[0]); // Convert to YYYY-MM-DD
+
+        const res = await api.get(`/api/mail/logs?${params.toString()}`);
+        setLogs(res.data.logs || []);
+        setTotalLogs(res.data.total || 0);
+        setTotalPages(res.data.totalPages || 1);
+      } catch (err) {
+        console.error(err);
         setLogs([]);
       } finally {
         setLoading(false);
@@ -28,7 +60,7 @@ export default function ViewLogs({ stats, recentActivity }) {
     };
 
     fetchLogs();
-  }, []);
+  }, [page, limit, statusFilter, dateFrom, dateTo]);
 
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleString();
@@ -53,11 +85,79 @@ export default function ViewLogs({ stats, recentActivity }) {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h2 className="text-xl md:text-2xl font-bold">Email Logs</h2>
         <div className="text-sm text-muted-foreground">
-          Total logs: {logs.length}
+          Total logs: {totalLogs}
         </div>
       </div>
 
-      {logs.length === 0 ? (
+      {/* Filters and limit selector */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex gap-4 items-center">
+          <div className="flex flex-col gap-2">
+            <Label className="text-sm text-muted-foreground">Status:</Label>
+            <Select
+              value={statusFilter}
+              onValueChange={(value) => {
+                setStatusFilter(value);
+                setPage(1);
+              }}
+            >
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Select status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All</SelectItem>
+                <SelectItem value="success">Success</SelectItem>
+                <SelectItem value="failed">Failed</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <DatePicker
+            label="From:"
+            date={dateFrom}
+            onDateChange={(date) => {
+              setDateFrom(date);
+              setPage(1);
+            }}
+            placeholder="Select start date"
+            className="w-48"
+          />
+
+          <DatePicker
+            label="To:"
+            date={dateTo}
+            onDateChange={(date) => {
+              setDateTo(date);
+              setPage(1);
+            }}
+            placeholder="Select end date"
+            className="w-48"
+          />
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <Label className="text-sm text-muted-foreground">Per page:</Label>
+          <Select
+            value={limit.toString()}
+            onValueChange={(value) => {
+              setLimit(parseInt(value, 10));
+              setPage(1);
+            }}
+          >
+            <SelectTrigger className="w-[120px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="5">5</SelectItem>
+              <SelectItem value="10">10</SelectItem>
+              <SelectItem value="20">20</SelectItem>
+              <SelectItem value="50">50</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      {totalLogs === 0 ? (
         <Card>
           <CardContent className="flex items-center justify-center py-12">
             <div className="text-center">
@@ -160,6 +260,46 @@ export default function ViewLogs({ stats, recentActivity }) {
                 </div>
               </CardContent>
             </Card>
+          )}
+          {totalPages > 1 && (
+            <Pagination>
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      if (page > 1) setPage(page - 1);
+                    }}
+                    disabled={page === 1}
+                  />
+                </PaginationItem>
+                {Array.from({ length: totalPages }).map((_, idx) => (
+                  <PaginationItem key={idx}>
+                    <PaginationLink
+                      href="#"
+                      isActive={page === idx + 1}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setPage(idx + 1);
+                      }}
+                    >
+                      {idx + 1}
+                    </PaginationLink>
+                  </PaginationItem>
+                ))}
+                <PaginationItem>
+                  <PaginationNext
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      if (page < totalPages) setPage(page + 1);
+                    }}
+                    disabled={page === totalPages}
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
           )}
         </>
       )}

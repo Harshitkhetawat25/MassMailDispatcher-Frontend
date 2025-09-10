@@ -168,12 +168,12 @@ function HeaderHomePage() {
                   >
                     Login
                   </Button>
-                  <Button
+                  {/* <Button
                     onClick={() => navigate("/signup")}
                     className="bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow px-6 py-2 rounded-md"
                   >
                     Sign Up
-                  </Button>
+                  </Button> */}
                 </>
               )}
             </div>
@@ -287,7 +287,7 @@ function HeaderHomePage() {
                     >
                       Login
                     </Button>
-                    <Button
+                    {/* <Button
                       onClick={() => {
                         navigate("/signup");
                         setIsMenuOpen(false);
@@ -295,7 +295,7 @@ function HeaderHomePage() {
                       className="bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow px-6 py-2 rounded-md w-full"
                     >
                       Sign Up
-                    </Button>
+                    </Button> */}
                   </>
                 )}
               </div>

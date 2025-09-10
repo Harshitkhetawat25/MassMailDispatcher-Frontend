@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../lib/axios";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { API_URL } from "../../constants/config";
 import { Button } from "@/components/ui/button";
@@ -17,8 +17,8 @@ const VerifyEmail = () => {
       setMessage("Verification token missing.");
       return;
     }
-    axios
-      .get(`${API_URL}/api/auth/verify-email?token=${token}`)
+    api
+      .get(`/api/auth/verify-email?token=${token}`)
       .then((res) => {
         setStatus("success");
         setMessage(res.data.message || "Email verified successfully!");
